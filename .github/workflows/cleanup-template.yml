@@ -1,0 +1,30 @@
+---
+name: Cleanup Template
+
+on:
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - "*"
+
+jobs:
+  template-cleanup:
+    name: Cleanup Template
+    if: github.event.repository.name != 'kotlin-recipe-starter'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Rename package references and remove this workflow
+        run: |
+          # Replace the com.yourorg group placeholder with your organization as needed,
+          # then remove this one-shot cleanup workflow.
+          rm -f .github/workflows/cleanup-template.yml
+          git config --local user.email "team@moderne.io"
+          git config --local user.name "team-moderne[bot]"
+          git add .
+          git commit -m "Remove cleanup template workflow"
+          git push origin main

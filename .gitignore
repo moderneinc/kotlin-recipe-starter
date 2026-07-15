@@ -1,0 +1,21 @@
+build/
+.gradle/
+.idea/
+out/
+bin/
+*.iml
+.vscode/
+.DS_Store
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+# Local config / secrets
+local.properties
+
+.claude/settings.local.json
+
+# Moderne CLI
+.moderne/*
+!.moderne/context/
