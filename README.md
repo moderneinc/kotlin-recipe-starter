@@ -51,18 +51,29 @@ val UseUppercase: Recipe = recipe(
 
 When a change needs cursor context, annotation inspection, or conditional logic, drop into the
 imperative visitor scope. The DSL composes with this `KotlinVisitor` underneath, not in place of it.
-See [`FindPrintlnCalls.kt`](src/main/kotlin/com/yourorg/FindPrintlnCalls.kt).
+See [`FindPrintlnCalls.kt`](src/main/kotlin/com/yourorg/FindPrintlnCalls.kt), which flags
+`println`/`print` calls but uses the cursor to skip the ones inside a `fun main` — a "where does the
+call sit" decision that a `rewrite { } to { }` pattern cannot express.
 
 ```kotlin
 val FindPrintlnCalls: Recipe = recipe(/* ... */) {
     edit {
-        kotlin {
-            visitMethodInvocation { mi ->
-                if (PRINTLN_MATCHER.matches(mi)) {
+        // Unlike `rewrite { } to { }`, an imperative visitor is not wrapped in a
+        // `UsesMethod` precondition automatically — add one with `check(...)` so files
+        // that never call println/print are skipped before the LST is walked.
+        check(
+            or(usesMethod(PRINTLN_SPEC), usesMethod(PRINT_SPEC)),
+            kotlin {
+                visitMethodInvocation { mi ->
+                    if (!PRINTLN_MATCHER.matches(mi) && !PRINT_MATCHER.matches(mi)) {
+                        return@visitMethodInvocation mi
+                    }
+                    val enclosing = cursor.firstEnclosing(J.MethodDeclaration::class.java)
+                    if (enclosing?.simpleName == "main") return@visitMethodInvocation mi
                     SearchResult.found(mi, "...") ?: mi
-                } else mi
-            }
-        }
+                }
+            },
+        )
     }
 }
 ```
