@@ -17,6 +17,7 @@ package com.yourorg
 
 import org.openrewrite.Recipe
 import org.openrewrite.java.MethodMatcher
+import org.openrewrite.java.tree.J
 import org.openrewrite.marker.SearchResult
 import org.openrewrite.recipe
 
@@ -27,26 +28,43 @@ import org.openrewrite.recipe
 // underneath, so you get the full LST to work with.
 //
 // This search recipe leaves the code unchanged and instead attaches a
-// `SearchResult` marker to every `println`/`print` call, which the Moderne
-// platform surfaces as a finding for review.
+// `SearchResult` marker to `println`/`print` calls — but NOT the ones inside a
+// `fun main`, where writing to the console is expected. That "look at where the
+// call sits" check is exactly what the imperative scope buys you: the cursor
+// walk over enclosing declarations is not expressible as a `rewrite { } to { }`
+// pattern.
 // -----------------------------------------------------------------------------
 
-private val PRINTLN_MATCHER = MethodMatcher("kotlin.io.ConsoleKt println(..)")
-private val PRINT_MATCHER = MethodMatcher("kotlin.io.ConsoleKt print(..)")
+private const val PRINTLN_SPEC = "kotlin.io.ConsoleKt println(..)"
+private const val PRINT_SPEC = "kotlin.io.ConsoleKt print(..)"
+
+private val PRINTLN_MATCHER = MethodMatcher(PRINTLN_SPEC)
+private val PRINT_MATCHER = MethodMatcher(PRINT_SPEC)
 
 val FindPrintlnCalls: Recipe = recipe(
-    displayName = "Find `println`/`print` calls",
-    description = "Flags `println` and `print` calls, which usually belong behind a logging framework in production code.",
+    displayName = "Find `println`/`print` calls outside `main`",
+    description = "Flags `println` and `print` calls, which usually belong behind a logging framework in production code. Calls inside a `fun main` are left alone.",
 ) {
     edit {
-        kotlin {
-            visitMethodInvocation { mi ->
-                if (PRINTLN_MATCHER.matches(mi) || PRINT_MATCHER.matches(mi)) {
+        // The declarative `rewrite { } to { }` path wraps its visitor in a
+        // `UsesMethod` precondition for you, so it never walks files that can't
+        // match. An imperative `kotlin { }` visitor does not get that for free —
+        // add the precondition with `check(...)` so whole files that never call
+        // `println`/`print` are skipped before the LST is traversed.
+        check(
+            or(usesMethod(PRINTLN_SPEC), usesMethod(PRINT_SPEC)),
+            kotlin {
+                visitMethodInvocation { mi ->
+                    if (!PRINTLN_MATCHER.matches(mi) && !PRINT_MATCHER.matches(mi)) {
+                        return@visitMethodInvocation mi
+                    }
+                    val enclosingFunction = cursor.firstEnclosing(J.MethodDeclaration::class.java)
+                    if (enclosingFunction?.simpleName == "main") {
+                        return@visitMethodInvocation mi
+                    }
                     SearchResult.found(mi, "prefer a logging framework over console output") ?: mi
-                } else {
-                    mi
                 }
-            }
-        }
+            },
+        )
     }
 }

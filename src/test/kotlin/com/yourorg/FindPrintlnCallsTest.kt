@@ -44,6 +44,17 @@ class FindPrintlnCallsTest : RewriteTest {
     )
 
     @Test
+    fun `println inside main is left alone`() = rewriteRun(
+        kotlin(
+            """
+            fun main() {
+                println("hello")
+            }
+            """,
+        ),
+    )
+
+    @Test
     fun `unrelated calls are left alone`() = rewriteRun(
         kotlin(
             """
