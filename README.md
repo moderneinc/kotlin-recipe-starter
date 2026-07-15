@@ -73,6 +73,15 @@ Compose existing recipes in
 [`src/main/resources/META-INF/rewrite/rewrite.yml`](src/main/resources/META-INF/rewrite/rewrite.yml),
 or build them visually at [app.moderne.io/recipes/builder](https://app.moderne.io/recipes/builder).
 
+## Data tables
+
+A recipe can emit structured rows (exported as CSV / surfaced on the Moderne platform) instead of, or
+alongside, changing code. Inserting a row needs the `ExecutionContext`, which a visit method receives
+directly — so data-table recipes are written as a full `Recipe` with a `KotlinIsoVisitor` rather than
+through the `kotlin { visitX { node -> … } }` DSL sugar, whose lambda exposes the node but not the
+context. See [`FindKotlinFunctions.kt`](src/main/kotlin/com/yourorg/FindKotlinFunctions.kt), which
+records the name and parameter count of every Kotlin function declaration.
+
 ## Build and test
 
 ```bash
