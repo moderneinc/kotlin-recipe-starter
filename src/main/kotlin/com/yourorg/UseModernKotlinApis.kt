@@ -61,6 +61,50 @@ val UseCharCode: Recipe = recipe(
 }
 
 // -----------------------------------------------------------------------------
+// The before/after lambdas can take more than one parameter, and a parameter can
+// itself be a lambda. Here two parameters are bound — a receiver and a selector
+// function — and both are threaded through to the `to { }` side by name.
+// -----------------------------------------------------------------------------
+
+val UseSumOf: Recipe = recipe(
+    displayName = "Use `sumOf` instead of `sumBy`",
+    description = "`Iterable.sumBy { … }` was deprecated in Kotlin 1.5 in favor of the type-inferred `sumOf { … }`.",
+) {
+    edit {
+        rewrite { xs: Iterable<Int>, selector: (Int) -> Int -> xs.sumBy(selector) } to { xs, selector -> xs.sumOf(selector) }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// A "receiver move": the before-pattern is a static `java.lang.Math` call and the
+// after-pattern is the multiplatform `kotlin.math` equivalent. Two arguments are
+// bound positionally and reused on the `to { }` side.
+// -----------------------------------------------------------------------------
+
+val UseKotlinMathMax: Recipe = recipe(
+    displayName = "Use `kotlin.math.max` instead of `java.lang.Math.max`",
+    description = "`Math.max(a, b)` is JVM-only; the multiplatform `kotlin.math.max(a, b)` reads the same and works in Kotlin Multiplatform modules.",
+) {
+    edit {
+        rewrite { a: Double, b: Double -> Math.max(a, b) } to { a, b -> kotlin.math.max(a, b) }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// A zero-parameter pattern (`{ -> … }`) matches an expression that binds no
+// arguments — here a constant field access rather than a method call.
+// -----------------------------------------------------------------------------
+
+val UseKotlinMathPi: Recipe = recipe(
+    displayName = "Use `kotlin.math.PI` instead of `java.lang.Math.PI`",
+    description = "Prefer the multiplatform `kotlin.math.PI` constant over the JVM-only `Math.PI`.",
+) {
+    edit {
+        rewrite { -> Math.PI } to { -> kotlin.math.PI }
+    }
+}
+
+// -----------------------------------------------------------------------------
 // `recipes(...)` composes several recipes into one. Point consumers at the
 // composite and they get every sub-recipe; each sub-recipe is still runnable on
 // its own.
@@ -72,4 +116,7 @@ val UseModernKotlinApis: Recipe = recipes(
     UseUppercase,
     UseLowercase,
     UseCharCode,
+    UseSumOf,
+    UseKotlinMathMax,
+    UseKotlinMathPi,
 )
