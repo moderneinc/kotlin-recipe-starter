@@ -122,6 +122,16 @@ KotlinTemplate.builder("#{any()} ?: throw #{any()}").build()
     .apply(cursor, iff.coordinates.replace(), value, exception)
 ```
 
+## Beyond the DSL: scanning recipes
+
+The `rewrite { } to { }` / `kotlin { visit… }` DSL covers pattern edits and single-pass imperative
+edits. Some recipes need to survey the whole codebase first and then act — the scan-then-generate
+lifecycle. Express those by extending `ScanningRecipe<Accumulator>` directly (a plain Kotlin class
+using the same `KotlinIsoVisitor`). See
+[`InventoryKotlinClasses.kt`](src/main/kotlin/com/yourorg/InventoryKotlinClasses.kt), which scans every
+Kotlin file for its type declarations and writes a single `kotlin-classes.txt` inventory — `generate`
+creates that file when absent, while `getVisitor` refreshes it in place when it is already there.
+
 ## Build and test
 
 ```bash
