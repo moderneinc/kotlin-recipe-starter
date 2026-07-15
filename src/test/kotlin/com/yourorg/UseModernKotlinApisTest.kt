@@ -70,6 +70,45 @@ class UseModernKotlinApisTest : RewriteTest {
     )
 
     @Test
+    fun `sumBy becomes sumOf, threading the selector lambda through`() = rewriteRun(
+        { spec -> spec.recipe(UseSumOf) },
+        kotlin(
+            """
+            fun total(xs: List<Int>): Int = xs.sumBy { it * 2 }
+            """,
+            """
+            fun total(xs: List<Int>): Int = xs.sumOf { it * 2 }
+            """,
+        ),
+    )
+
+    @Test
+    fun `Math max becomes kotlin math max`() = rewriteRun(
+        { spec -> spec.recipe(UseKotlinMathMax) },
+        kotlin(
+            """
+            fun m(a: Double, b: Double): Double = Math.max(a, b)
+            """,
+            """
+            fun m(a: Double, b: Double): Double = kotlin.math.max(a, b)
+            """,
+        ),
+    )
+
+    @Test
+    fun `Math PI becomes kotlin math PI`() = rewriteRun(
+        { spec -> spec.recipe(UseKotlinMathPi) },
+        kotlin(
+            """
+            fun circumference(r: Double): Double = 2 * Math.PI * r
+            """,
+            """
+            fun circumference(r: Double): Double = 2 * kotlin.math.PI * r
+            """,
+        ),
+    )
+
+    @Test
     fun `the composite runs every sub-recipe`() = rewriteRun(
         { spec -> spec.recipe(UseModernKotlinApis) },
         kotlin(
@@ -77,11 +116,15 @@ class UseModernKotlinApisTest : RewriteTest {
             val up: String = "hello".toUpperCase()
             val down: String = "HELLO".toLowerCase()
             val code: Int = 'a'.toInt()
+            fun total(xs: List<Int>): Int = xs.sumBy { it }
+            fun m(a: Double, b: Double): Double = Math.max(a, b)
             """,
             """
             val up: String = "hello".uppercase()
             val down: String = "HELLO".lowercase()
             val code: Int = 'a'.code
+            fun total(xs: List<Int>): Int = xs.sumOf { it }
+            fun m(a: Double, b: Double): Double = kotlin.math.max(a, b)
             """,
         ),
     )
