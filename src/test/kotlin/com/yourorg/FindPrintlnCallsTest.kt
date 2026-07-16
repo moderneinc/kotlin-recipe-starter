@@ -19,12 +19,11 @@ import org.junit.jupiter.api.Test
 import org.openrewrite.kotlin.Assertions.kotlin
 import org.openrewrite.test.RecipeSpec
 import org.openrewrite.test.RewriteTest
-import org.openrewrite.test.TypeValidation
 
 class FindPrintlnCallsTest : RewriteTest {
 
     override fun defaults(spec: RecipeSpec) {
-        spec.recipe(FindPrintlnCalls).typeValidationOptions(TypeValidation.none())
+        spec.recipe(FindPrintlnCalls)
     }
 
     @Test
