@@ -17,18 +17,9 @@ package com.yourorg
 
 import org.junit.jupiter.api.Test
 import org.openrewrite.kotlin.Assertions.kotlin
-import org.openrewrite.test.RecipeSpec
 import org.openrewrite.test.RewriteTest
-import org.openrewrite.test.TypeValidation
 
 class UseModernKotlinApisTest : RewriteTest {
-
-    override fun defaults(spec: RecipeSpec) {
-        // The `sumBy` -> `sumOf` rewrite leaves the new invocation's JavaType.Method
-        // missing/malformed, which trips only the method-invocation type check. Narrow
-        // the suppression to that one check so every other invariant stays validated.
-        spec.typeValidationOptions(TypeValidation.builder().methodInvocations(false).build())
-    }
 
     @Test
     fun `toUpperCase becomes uppercase`() = rewriteRun(

@@ -25,8 +25,8 @@ description = "OpenRewrite recipes for Kotlin, authored with the Kotlin recipe D
 
 dependencies {
     // The bom aligns every org.openrewrite* module — including rewrite-kotlin — to one version.
-    // https://github.com/openrewrite/rewrite-recipe-bom/releases
-    implementation(platform("org.openrewrite.recipe:rewrite-recipe-bom:latest.release"))
+    // https://github.com/openrewrite/rewrite/releases
+    implementation(platform("org.openrewrite:rewrite-bom:latest.release"))
 
     // The Kotlin LST extends the Java LST, so recipes lean on both modules.
     implementation("org.openrewrite:rewrite-java")
@@ -36,7 +36,7 @@ dependencies {
     // shipped inside rewrite-kotlin. It runs at recipe-compile time and rewrites the
     // `recipe(...)`/`recipes(...)` property initializers into synthesized Recipe classes, so no
     // reflection or ServiceLoader wiring is needed — consumers see ordinary Recipe instances.
-    kotlinCompilerPluginClasspath(platform("org.openrewrite.recipe:rewrite-recipe-bom:latest.release"))
+    kotlinCompilerPluginClasspath(platform("org.openrewrite:rewrite-bom:latest.release"))
     kotlinCompilerPluginClasspath("org.openrewrite:rewrite-kotlin")
 
     // Parse Kotlin sources under test against a real JDK 21 runtime.
