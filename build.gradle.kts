@@ -23,6 +23,20 @@ plugins {
 group = "com.yourorg"
 description = "OpenRewrite recipes for Kotlin, authored with the Kotlin recipe DSL."
 
+// Temporary: the `sumBy` -> `sumOf` type-attribution fix (openrewrite/rewrite#8273) is not in
+// any release yet; force the core rewrite modules to the first snapshot that contains it. Drop
+// this block and revert to the BOM-managed release once rewrite-kotlin 8.88.0 ships.
+repositories {
+    maven { url = uri("https://central.sonatype.com/repository/maven-snapshots") }
+}
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.openrewrite") {
+            useVersion("8.88.0-SNAPSHOT")
+        }
+    }
+}
+
 dependencies {
     // The bom aligns every org.openrewrite* module — including rewrite-kotlin — to one version.
     // https://github.com/openrewrite/rewrite-recipe-bom/releases
