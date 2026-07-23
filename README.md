@@ -1,8 +1,9 @@
 # kotlin-recipe-starter
 
-A template for authoring [OpenRewrite](https://docs.openrewrite.org/) recipes for **Kotlin**, using
-the Kotlin recipe DSL. Click **Use this template** on GitHub, rename the `com.yourorg` group to your
-own, and start writing recipes.
+A template for authoring [OpenRewrite](https://docs.openrewrite.org/) recipes with the **Kotlin
+recipe DSL**. The recipes you write here target Kotlin sources — and, when they name a shared or
+pure-Java API, Java sources too. Click **Use this template** on GitHub, rename the `com.yourorg`
+group to your own, and start writing recipes.
 
 For a walkthrough of the DSL and the ideas behind it, read
 [Kotlin recipes for OpenRewrite](https://moderne.ai/blog/kotlin-recipes-for-openrewrite). For a large,
@@ -14,7 +15,11 @@ The Kotlin LST *extends* the Java LST, so an ordinary Java or declarative-YAML r
 against Kotlin sources — that path lives in
 [`rewrite-recipe-starter`](https://github.com/moderneinc/rewrite-recipe-starter), and
 [`src/main/resources/META-INF/rewrite/rewrite.yml`](src/main/resources/META-INF/rewrite/rewrite.yml)
-shows a declarative recipe doing exactly that here.
+shows a declarative recipe doing exactly that here. That shared LST runs both ways: a Kotlin-DSL
+recipe whose pattern names a shared or pure-Java API compiles to a language-agnostic,
+MethodMatcher-driven recipe that rewrites **Java** sources too — so the reach of a Kotlin-authored
+recipe is not limited to Kotlin ([section 1](#the-three-ways-to-write-a-kotlin-recipe) has a worked
+example).
 
 What this repo adds is the **Kotlin recipe DSL**: a K2 compiler plugin, shipped inside `rewrite-kotlin`,
 that turns `rewrite { } to { }` before/after lambdas into recipes at compile time. That plugin needs a
@@ -123,10 +128,10 @@ KotlinTemplate.builder("#{any()} ?: throw #{any()}").build()
 ./gradlew build
 ```
 
-Tests use `RewriteTest` with the `kotlin(...)` source helper from `rewrite-kotlin`; see the
-[`src/test`](src/test/kotlin/com/yourorg) directory. Because pattern-mode rewrites update an
-invocation's name but not its attached `JavaType.Method`, the tests set
-`TypeValidation.none()` — this is expected and does not affect whether the rewrite fired.
+Tests use `RewriteTest` with the `kotlin(...)` source helper from `rewrite-kotlin` — and, for the
+recipes that also target Java, the `java(...)` helper from `rewrite-java`; see the
+[`src/test`](src/test/kotlin/com/yourorg) directory. `UseIsWhitespaceTest` runs the same recipe
+through both helpers to prove it fires in either language.
 
 ## Run your recipes against a codebase
 
