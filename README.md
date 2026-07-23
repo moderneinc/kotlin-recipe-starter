@@ -47,6 +47,14 @@ val UseUppercase: Recipe = recipe(
 
 `recipes(...)` composes several of these into one runnable recipe.
 
+Because the Kotlin LST *extends* the Java LST, the DSL is not Kotlin-only: a `rewrite { } to { }`
+pattern whose before/after lambdas name a **pure Java** API compiles to a MethodMatcher-driven recipe
+that rewrites Java sources too. See
+[`UseIsWhitespace.kt`](src/main/kotlin/com/yourorg/UseIsWhitespace.kt), which swaps the deprecated
+`Character.isSpace` for `Character.isWhitespace`;
+[`UseIsWhitespaceTest`](src/test/kotlin/com/yourorg/UseIsWhitespaceTest.kt) asserts the rewrite fires
+in both `kotlin(...)` and `java(...)` sources.
+
 ### 2. Imperative — `kotlin { visit… }` (when you need LST context)
 
 When a change needs cursor context, annotation inspection, or conditional logic, drop into the
