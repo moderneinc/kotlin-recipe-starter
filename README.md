@@ -93,6 +93,22 @@ through the `kotlin { visitX { node -> … } }` DSL sugar, whose lambda exposes 
 context. See [`FindKotlinFunctions.kt`](src/main/kotlin/com/yourorg/FindKotlinFunctions.kt), which
 records the name and parameter count of every Kotlin function declaration.
 
+## Synthesizing code with `KotlinTemplate`
+
+The `rewrite { } to { }` DSL rewrites a matched expression into a fixed after-expression. When the
+"after" side is a different syntactic *shape* — a new operator, moved arguments, added control flow —
+reach for `KotlinTemplate` (the Kotlin counterpart to `JavaTemplate`): it parses a snippet of Kotlin
+into fresh LST and splices it in, filling each `#{...}` hole with a node lifted from the matched code.
+See [`UseElvisThrow.kt`](src/main/kotlin/com/yourorg/UseElvisThrow.kt), which rewrites an
+`if (x == null) throw ...` guard into the equivalent `x ?: throw ...` Elvis expression — the
+before-pattern is an `if` statement, not an expression call, so it is beyond what `rewrite { } to { }`
+can match.
+
+```kotlin
+KotlinTemplate.builder("#{any()} ?: throw #{any()}").build()
+    .apply(cursor, iff.coordinates.replace(), value, exception)
+```
+
 ## Build and test
 
 ```bash
