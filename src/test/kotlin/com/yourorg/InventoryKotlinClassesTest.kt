@@ -20,12 +20,11 @@ import org.openrewrite.kotlin.Assertions.kotlin
 import org.openrewrite.test.RecipeSpec
 import org.openrewrite.test.RewriteTest
 import org.openrewrite.test.SourceSpecs.text
-import org.openrewrite.test.TypeValidation
 
 class InventoryKotlinClassesTest : RewriteTest {
 
     override fun defaults(spec: RecipeSpec) {
-        spec.recipe(InventoryKotlinClasses()).typeValidationOptions(TypeValidation.none())
+        spec.recipe(InventoryKotlinClasses())
     }
 
     @Test
@@ -46,6 +45,42 @@ class InventoryKotlinClassesTest : RewriteTest {
             """
             Alpha
             Beta
+            Gamma
+            """.trimIndent(),
+        ) { spec -> spec.path("kotlin-classes.txt") },
+    )
+
+    @Test
+    fun `overwrites a stale inventory`() = rewriteRun(
+        kotlin(
+            """
+            class Alpha
+            interface Gamma
+            """,
+        ),
+        text(
+            """
+            Delta
+            Epsilon
+            """.trimIndent(),
+            """
+            Alpha
+            Gamma
+            """.trimIndent(),
+        ) { spec -> spec.path("kotlin-classes.txt") },
+    )
+
+    @Test
+    fun `leaves an up-to-date inventory untouched`() = rewriteRun(
+        kotlin(
+            """
+            class Alpha
+            interface Gamma
+            """,
+        ),
+        text(
+            """
+            Alpha
             Gamma
             """.trimIndent(),
         ) { spec -> spec.path("kotlin-classes.txt") },
