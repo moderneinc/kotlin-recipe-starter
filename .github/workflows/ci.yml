@@ -34,3 +34,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - name: build
         run: ./gradlew ${{ env.GRADLE_SWITCHES }} build test
+        env:
+          # Lets org.openrewrite.build.recipe-repositories resolve org.openrewrite and io.moderne
+          # artifacts from the Code Genome Project, which is where they are published since the
+          # 2026-08-12 cutover. Empty for forks and for clones of this template that have not set
+          # the secrets, which leaves the repository undeclared and resolution stuck on the last
+          # versions Maven Central received.
+          ORG_GRADLE_PROJECT_codegenomeUsername: ${{ secrets.CGP_ARTIFACTS_MAVEN_USERNAME }}
+          ORG_GRADLE_PROJECT_codegenomePassword: ${{ secrets.CGP_ARTIFACTS_MAVEN_TOKEN }}
