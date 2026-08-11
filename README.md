@@ -32,6 +32,20 @@ line is the piece that enables the DSL.
 - JDK 21 (`rewrite-kotlin`'s parser is built and validated on JDK 21 — an `.sdkmanrc` is included)
 - Gradle is provided via the wrapper (`./gradlew`)
 
+## Code Genome Project credentials
+
+OpenRewrite and Moderne artifacts moved to the [Code Genome Project](https://artifacts.codegenomeproject.org/maven)
+repository in the 2026-08-12 cutover, so credentials are now required to resolve current versions.
+The `org.openrewrite.build.recipe-repositories` plugin applied in
+[`build.gradle.kts`](build.gradle.kts) declares that repository only when both credentials are
+present; without them the build still succeeds, but resolves whatever was last published to Maven
+Central before the cutover.
+
+Set `codegenomeUsername`/`codegenomePassword` in `~/.gradle/gradle.properties` for local builds, and
+expose the same values as the `ORG_GRADLE_PROJECT_codegenomeUsername` and
+`ORG_GRADLE_PROJECT_codegenomePassword` environment variables in CI — see
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
 ## The three ways to write a Kotlin recipe
 
 ### 1. Declarative DSL — `rewrite { } to { }` (the common case)
