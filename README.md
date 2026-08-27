@@ -34,17 +34,24 @@ line is the piece that enables the DSL.
 
 ## Code Genome Project credentials
 
-OpenRewrite and Moderne artifacts moved to the [Code Genome Project](https://artifacts.codegenomeproject.org/maven)
-repository in the 2026-08-12 cutover, so credentials are now required to resolve current versions.
-The `org.openrewrite.build.recipe-repositories` plugin applied in
-[`build.gradle.kts`](build.gradle.kts) declares that repository only when both credentials are
-present; without them the build still succeeds, but resolves whatever was last published to Maven
-Central before the cutover.
+OpenRewrite and Moderne artifacts are published to the [Code Genome Project](https://artifacts.codegenomeproject.org/maven)
+repository, which requires credentials.
 
 Set `codegenomeUsername`/`codegenomePassword` in `~/.gradle/gradle.properties` for local builds, and
 expose the same values as the `ORG_GRADLE_PROJECT_codegenomeUsername` and
 `ORG_GRADLE_PROJECT_codegenomePassword` environment variables in CI — see
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml). Both are read in two places:
+
+- **Dependencies** — the `org.openrewrite.build.recipe-repositories` plugin applied in
+  [`build.gradle.kts`](build.gradle.kts) declares the repository, and drops Maven Central's copy of
+  `org.openrewrite`/`io.moderne` once it does.
+- **Plugins** — the `pluginManagement` block in [`settings.gradle.kts`](settings.gradle.kts) declares
+  the same repository ahead of the Gradle Plugin Portal. Plugin resolution happens before any project
+  is configured, so the plugin above cannot cover it, and the `org.openrewrite.build.*` plugins this
+  template applies are themselves `org.openrewrite` artifacts.
+
+Without the credentials neither repository is declared and the build still succeeds, but resolves
+only what Maven Central and the Gradle Plugin Portal serve, which lags the Code Genome Project.
 
 ## The three ways to write a Kotlin recipe
 
