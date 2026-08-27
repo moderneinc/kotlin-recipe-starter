@@ -35,10 +35,11 @@ jobs:
       - name: build
         run: ./gradlew ${{ env.GRADLE_SWITCHES }} build test
         env:
-          # Lets org.openrewrite.build.recipe-repositories resolve org.openrewrite and io.moderne
-          # artifacts from the Code Genome Project, which is where they are published since the
-          # 2026-08-12 cutover. Empty for forks and for clones of this template that have not set
-          # the secrets, which leaves the repository undeclared and resolution stuck on the last
-          # versions Maven Central received.
+          # Lets both settings.gradle.kts (org.openrewrite.build.* plugins) and
+          # org.openrewrite.build.recipe-repositories (org.openrewrite and io.moderne dependencies)
+          # resolve from the Code Genome Project, which is where they are published. Empty for
+          # forks and for clones of this template that have not set the secrets, which leaves the
+          # repository undeclared and resolution limited to Maven Central and the Gradle Plugin
+          # Portal.
           ORG_GRADLE_PROJECT_codegenomeUsername: ${{ secrets.CODEGENOME_USERNAME }}
           ORG_GRADLE_PROJECT_codegenomePassword: ${{ secrets.CODEGENOME_TOKEN }}
