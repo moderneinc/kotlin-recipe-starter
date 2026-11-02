@@ -39,9 +39,6 @@ dependencies {
     kotlinCompilerPluginClasspath(platform("org.openrewrite:rewrite-bom:latest.release"))
     kotlinCompilerPluginClasspath("org.openrewrite:rewrite-kotlin")
 
-    // Parse Kotlin sources under test against a real JDK 21 runtime.
-    runtimeOnly("org.openrewrite:rewrite-java-21")
-
     // The RewriteTest class needed for testing recipes.
     testImplementation("org.openrewrite:rewrite-test")
     testImplementation("org.assertj:assertj-core:latest.release")
@@ -62,12 +59,12 @@ configure<nebula.plugin.release.git.base.ReleasePluginExtension> {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 // Recipe libraries target Java 8 bytecode so they load in older rewrite runtimes; keep Kotlin
-// main compilation aligned. Tests exercise the JDK 21 Kotlin parser, so they compile to 21.
+// main compilation aligned. Tests compile to the toolchain version.
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_1_8
@@ -76,7 +73,7 @@ kotlin {
 
 tasks.named<KotlinCompile>("compileTestKotlin") {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_21
+        jvmTarget = JvmTarget.JVM_25
     }
 }
 

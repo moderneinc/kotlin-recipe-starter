@@ -29,7 +29,7 @@ line is the piece that enables the DSL.
 
 ## Prerequisites
 
-- JDK 21 (`rewrite-kotlin`'s parser is built and validated on JDK 21 — an `.sdkmanrc` is included)
+- JDK 25 (an `.sdkmanrc` is included)
 - Gradle is provided via the wrapper (`./gradlew`)
 
 ## Code Genome Project credentials
