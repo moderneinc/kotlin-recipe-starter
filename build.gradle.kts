@@ -57,12 +57,6 @@ configure<nebula.plugin.release.git.base.ReleasePluginExtension> {
     defaultVersionStrategy = nebula.plugin.release.NetflixOssStrategies.SNAPSHOT(project)
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-}
-
 // Recipe libraries target Java 8 bytecode so they load in older rewrite runtimes; keep Kotlin
 // main compilation aligned. Tests compile to the toolchain version.
 kotlin {
